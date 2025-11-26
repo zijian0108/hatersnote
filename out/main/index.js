@@ -18815,14 +18815,14 @@ var __webpack_exports__ = {};
 // This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
 (() => {
 __webpack_require__.r(__webpack_exports__);
-/* import */var node_path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("node:path");
-/* import */var node_path__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(node_path__WEBPACK_IMPORTED_MODULE_0__);
-/* import */var _electron_toolkit_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("./node_modules/.pnpm/@electron-toolkit+utils@3.0.0_electron@31.7.7/node_modules/@electron-toolkit/utils/dist/index.mjs");
-/* import */var electron__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__("electron");
-/* import */var electron__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(electron__WEBPACK_IMPORTED_MODULE_2__);
-/* import */var _resources_icon_png_asset__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__("./resources/icon.png?asset");
-/* import */var systeminformation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__("./node_modules/.pnpm/systeminformation@5.27.11/node_modules/systeminformation/lib/index.js");
-/* import */var systeminformation__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(systeminformation__WEBPACK_IMPORTED_MODULE_4__);
+/* import */var _electron_toolkit_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("./node_modules/.pnpm/@electron-toolkit+utils@3.0.0_electron@31.7.7/node_modules/@electron-toolkit/utils/dist/index.mjs");
+/* import */var electron__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__("electron");
+/* import */var electron__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(electron__WEBPACK_IMPORTED_MODULE_1__);
+/* import */var node_path__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__("node:path");
+/* import */var node_path__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(node_path__WEBPACK_IMPORTED_MODULE_2__);
+/* import */var systeminformation__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__("./node_modules/.pnpm/systeminformation@5.27.11/node_modules/systeminformation/lib/index.js");
+/* import */var systeminformation__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(systeminformation__WEBPACK_IMPORTED_MODULE_3__);
+/* import */var _resources_icon_png_asset__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__("./resources/icon.png?asset");
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
         var info = gen[key](arg);
@@ -19002,16 +19002,16 @@ function _ts_generator(thisArg, body) {
 
 function createWindow() {
     // Create the browser window.
-    var mainWindow = new electron__WEBPACK_IMPORTED_MODULE_2__.BrowserWindow(_object_spread_props(_object_spread({
+    var mainWindow = new electron__WEBPACK_IMPORTED_MODULE_1__.BrowserWindow(_object_spread_props(_object_spread({
         width: 900,
         height: 670,
         show: false,
         autoHideMenuBar: true
     }, process.platform === 'linux' ? {
-        icon: _resources_icon_png_asset__WEBPACK_IMPORTED_MODULE_3__
+        icon: _resources_icon_png_asset__WEBPACK_IMPORTED_MODULE_4__
     } : {}), {
         webPreferences: {
-            preload: (0,node_path__WEBPACK_IMPORTED_MODULE_0__.join)(__dirname, '../preload/index.js'),
+            preload: (0,node_path__WEBPACK_IMPORTED_MODULE_2__.join)(__dirname, '../preload/index.js'),
             sandbox: false
         }
     }));
@@ -19020,17 +19020,17 @@ function createWindow() {
         mainWindow.show();
     });
     mainWindow.webContents.setWindowOpenHandler(function(details) {
-        electron__WEBPACK_IMPORTED_MODULE_2__.shell.openExternal(details.url);
+        electron__WEBPACK_IMPORTED_MODULE_1__.shell.openExternal(details.url);
         return {
             action: 'deny'
         };
     });
     // HMR for renderer base on electron-rsbuild cli.
     // Load the remote URL for development or the local html file for production.
-    if (_electron_toolkit_utils__WEBPACK_IMPORTED_MODULE_1__.is.dev && process.env.ELECTRON_RENDERER_URL) {
+    if (_electron_toolkit_utils__WEBPACK_IMPORTED_MODULE_0__.is.dev && process.env.ELECTRON_RENDERER_URL) {
         mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
     } else {
-        mainWindow.loadFile((0,node_path__WEBPACK_IMPORTED_MODULE_0__.join)(__dirname, '../renderer/index.html'));
+        mainWindow.loadFile((0,node_path__WEBPACK_IMPORTED_MODULE_2__.join)(__dirname, '../renderer/index.html'));
     }
 }
 function formatBytes(bytes) {
@@ -19052,24 +19052,24 @@ function formatBytes(bytes) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-electron__WEBPACK_IMPORTED_MODULE_2__.app.whenReady().then(function() {
+electron__WEBPACK_IMPORTED_MODULE_1__.app.whenReady().then(function() {
     // Set app user model id for windows
-    _electron_toolkit_utils__WEBPACK_IMPORTED_MODULE_1__.electronApp.setAppUserModelId('com.electron');
+    _electron_toolkit_utils__WEBPACK_IMPORTED_MODULE_0__.electronApp.setAppUserModelId('com.electron');
     // Default open or close DevTools by F12 in development
     // and ignore CommandOrControl + R in production.
     // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
-    electron__WEBPACK_IMPORTED_MODULE_2__.app.on('browser-window-created', function(_, window) {
-        _electron_toolkit_utils__WEBPACK_IMPORTED_MODULE_1__.optimizer.watchWindowShortcuts(window);
+    electron__WEBPACK_IMPORTED_MODULE_1__.app.on('browser-window-created', function(_, window) {
+        _electron_toolkit_utils__WEBPACK_IMPORTED_MODULE_0__.optimizer.watchWindowShortcuts(window);
     });
     // IPC test
-    electron__WEBPACK_IMPORTED_MODULE_2__.ipcMain.on('ping', function(event) {
+    electron__WEBPACK_IMPORTED_MODULE_1__.ipcMain.on('ping', function(event) {
         event.reply('pong', {
             message: 'copy that.',
             time: new Date().getTime()
         });
         console.log('pong');
     });
-    electron__WEBPACK_IMPORTED_MODULE_2__.ipcMain.handle('get-device-info', function() {
+    electron__WEBPACK_IMPORTED_MODULE_1__.ipcMain.handle('get-device-info', function() {
         return _async_to_generator(function() {
             var cpu, os, memory, system, disks, deviceInfo;
             return _ts_generator(this, function(_state) {
@@ -19077,31 +19077,31 @@ electron__WEBPACK_IMPORTED_MODULE_2__.app.whenReady().then(function() {
                     case 0:
                         return [
                             4,
-                            systeminformation__WEBPACK_IMPORTED_MODULE_4___default().cpu()
+                            systeminformation__WEBPACK_IMPORTED_MODULE_3___default().cpu()
                         ];
                     case 1:
                         cpu = _state.sent();
                         return [
                             4,
-                            systeminformation__WEBPACK_IMPORTED_MODULE_4___default().osInfo()
+                            systeminformation__WEBPACK_IMPORTED_MODULE_3___default().osInfo()
                         ];
                     case 2:
                         os = _state.sent();
                         return [
                             4,
-                            systeminformation__WEBPACK_IMPORTED_MODULE_4___default().mem()
+                            systeminformation__WEBPACK_IMPORTED_MODULE_3___default().mem()
                         ];
                     case 3:
                         memory = _state.sent();
                         return [
                             4,
-                            systeminformation__WEBPACK_IMPORTED_MODULE_4___default().system()
+                            systeminformation__WEBPACK_IMPORTED_MODULE_3___default().system()
                         ];
                     case 4:
                         system = _state.sent();
                         return [
                             4,
-                            systeminformation__WEBPACK_IMPORTED_MODULE_4___default().diskLayout()
+                            systeminformation__WEBPACK_IMPORTED_MODULE_3___default().diskLayout()
                         ];
                     case 5:
                         disks = _state.sent();
@@ -19129,7 +19129,9 @@ electron__WEBPACK_IMPORTED_MODULE_2__.app.whenReady().then(function() {
                             // 磁盘大小
                             disk_size: formatBytes(disks.reduce(function(acc, curr) {
                                 return acc + curr.size;
-                            }, 0))
+                            }, 0)),
+                            // 系统语言
+                            sys_lang: electron__WEBPACK_IMPORTED_MODULE_1__.app.getLocale()
                         };
                         return [
                             2,
@@ -19139,19 +19141,24 @@ electron__WEBPACK_IMPORTED_MODULE_2__.app.whenReady().then(function() {
             });
         })();
     });
+    if (process.platform === 'darwin') {
+        electron__WEBPACK_IMPORTED_MODULE_1__.systemPreferences.subscribeLocalNotification('AppleLanguagePreferencesChangedNotification', function() {
+            console.log('mac os language changed');
+        });
+    }
     createWindow();
-    electron__WEBPACK_IMPORTED_MODULE_2__.app.on('activate', function() {
+    electron__WEBPACK_IMPORTED_MODULE_1__.app.on('activate', function() {
         // On macOS it's common to re-create a window in the app when the
         // dock icon is clicked and there are no other windows open.
-        if (electron__WEBPACK_IMPORTED_MODULE_2__.BrowserWindow.getAllWindows().length === 0) createWindow();
+        if (electron__WEBPACK_IMPORTED_MODULE_1__.BrowserWindow.getAllWindows().length === 0) createWindow();
     });
 });
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-electron__WEBPACK_IMPORTED_MODULE_2__.app.on('window-all-closed', function() {
+electron__WEBPACK_IMPORTED_MODULE_1__.app.on('window-all-closed', function() {
     if (process.platform !== 'darwin') {
-        electron__WEBPACK_IMPORTED_MODULE_2__.app.quit();
+        electron__WEBPACK_IMPORTED_MODULE_1__.app.quit();
     }
 }); // In this file you can include the rest of your app"s specific main process
  // code. You can also put them in separate files and require them here.

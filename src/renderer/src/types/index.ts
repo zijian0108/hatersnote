@@ -1,6 +1,4 @@
-import type {ElectronAPI} from '@electron-toolkit/preload'
-
-declare type DeviceInfo = {
+export type DeviceInfo = {
   serial_number: string
   machineId: string
   cpu_brand: string
@@ -13,13 +11,4 @@ declare type DeviceInfo = {
   memory_total: string
   disk_size: string
   sys_locale: string
-}
-
-declare global {
-  interface Window {
-    electron: ElectronAPI
-    api: {
-      getDeviceInfo: () => Promise<DeviceInfo>
-    }
-  }
 }

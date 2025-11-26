@@ -1,11 +1,14 @@
-import {resolve} from 'node:path'
-import {defineConfig} from '@rsbuild/core'
-import {pluginReact} from '@rsbuild/plugin-react'
+import { resolve } from "node:path";
+import { defineConfig } from "@rsbuild/core";
+import { pluginReact } from "@rsbuild/plugin-react";
 
-const template = resolve(__dirname, 'src', 'renderer', 'index.html')
+const template = resolve(__dirname, "src", "renderer", "index.html");
 
 export default defineConfig({
-  root: resolve(__dirname, '.'),
+  root: resolve(__dirname, "."),
+  server: {
+    historyApiFallback: true
+  },
   environments: {
     // main
     main: {},
@@ -15,8 +18,11 @@ export default defineConfig({
     renderer: {
       plugins: [pluginReact()],
       html: {
-        template,
+        template
       },
-    },
-  },
-})
+      output: {
+        assetPrefix: '/'
+      }
+    }
+  }
+});
