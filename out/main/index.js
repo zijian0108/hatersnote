@@ -19003,10 +19003,13 @@ function _ts_generator(thisArg, body) {
 function createWindow() {
     // Create the browser window.
     var mainWindow = new electron__WEBPACK_IMPORTED_MODULE_1__.BrowserWindow(_object_spread_props(_object_spread({
-        width: 900,
-        height: 670,
+        width: 1280,
+        height: 850,
+        minWidth: 1150,
+        minHeight: 760,
         show: false,
-        autoHideMenuBar: true
+        autoHideMenuBar: true,
+        titleBarStyle: 'hidden'
     }, process.platform === 'linux' ? {
         icon: _resources_icon_png_asset__WEBPACK_IMPORTED_MODULE_4__
     } : {}), {
@@ -19141,11 +19144,6 @@ electron__WEBPACK_IMPORTED_MODULE_1__.app.whenReady().then(function() {
             });
         })();
     });
-    if (process.platform === 'darwin') {
-        electron__WEBPACK_IMPORTED_MODULE_1__.systemPreferences.subscribeLocalNotification('AppleLanguagePreferencesChangedNotification', function() {
-            console.log('mac os language changed');
-        });
-    }
     createWindow();
     electron__WEBPACK_IMPORTED_MODULE_1__.app.on('activate', function() {
         // On macOS it's common to re-create a window in the app when the
