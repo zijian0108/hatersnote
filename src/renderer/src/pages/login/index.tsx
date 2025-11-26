@@ -2,14 +2,8 @@ import { useApp } from "@renderer/context/app";
 import { gsap } from "gsap";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { FormEvent, useLayoutEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./index.module.scss";
-
-const HEADLINE = ["更专注的", "笔记与写作空间"];
-const HIGHLIGHTS = [
-  "AI 摘要与思路延展",
-  "端侧加密 · 数据自我掌控",
-  "多端协作 · 毫秒级同步"
-];
 const FLUID_BLOBS = [
   { variant: "fluidBlobPrimary", label: "primary" },
   { variant: "fluidBlobSecondary", label: "secondary" },
@@ -19,6 +13,7 @@ const FLUID_BLOBS = [
 
 export const PageLogin = () => {
   const { isDarkMode, setIsDarkMode } = useApp();
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
@@ -200,22 +195,26 @@ export const PageLogin = () => {
       <div className={styles.loginGrid}>
         <section className={styles.hero}>
           <div className={styles.heroBadge} ref={badgeRef}>
-            <span>HatersNote · Nova</span>
-            <span>Alpha build</span>
+            <span>{t("page.login.badge.product")}</span>
+            <span>{t("page.login.badge.build")}</span>
           </div>
 
           <h1 className={styles.heroHeadline}>
-            {HEADLINE.map((line) => (
+            {[t("page.login.headline.focus"), t("page.login.headline.space")].map((line) => (
               <span key={line}>{line}</span>
             ))}
           </h1>
 
           <p className={styles.heroCopy} ref={copyRef}>
-            我们重新思考了笔记工具应该长什么样：在私密性、专注度与速度之间找到新的平衡，让灵感与行动始终保持同频。
+            {t("page.login.copy")}
           </p>
 
           <ul className={styles.heroHighlights}>
-            {HIGHLIGHTS.map((item, index) => (
+            {[
+              t("page.login.highlight.ai"),
+              t("page.login.highlight.security"),
+              t("page.login.highlight.sync")
+            ].map((item, index) => (
               <li
                 key={item}
                 className={styles.heroHighlightItem}
@@ -228,33 +227,33 @@ export const PageLogin = () => {
 
           <div className={styles.heroActions}>
             <button type="button" className={styles.primaryCta}>
-              浏览路线图
+              {t("page.login.cta.primary")}
             </button>
             <button type="button" className={styles.secondaryCta} onClick={handleThemeToggle}>
-              切换主题
+              {t("page.login.cta.secondary")}
             </button>
           </div>
         </section>
 
         <section className={styles.loginCard} ref={cardRef}>
           <div className={styles.loginCardHeader}>
-            <h2>登录账户</h2>
-            <p>使用受信任设备即可免验证登录</p>
+            <h2>{t("page.login.card.title")}</h2>
+            <p>{t("page.login.card.subtitle")}</p>
           </div>
 
           <form className={styles.loginForm} onSubmit={handleSubmit}>
             <label className={styles.loginFormField}>
-              <span>邮箱</span>
+              <span>{t("page.login.form.emailLabel")}</span>
               <input
                 type="email"
-                placeholder="you@hatersnote.app"
+                placeholder={t("page.login.form.emailPlaceholder")}
                 ref={(element) => assignInputRef(element, 0)}
                 required
               />
             </label>
 
             <label className={styles.loginFormField}>
-              <span>密码</span>
+              <span>{t("page.login.form.passwordLabel")}</span>
               <input
                 type="password"
                 placeholder="••••••••"
@@ -266,10 +265,10 @@ export const PageLogin = () => {
             <div className={styles.loginFormExtras}>
               <label>
                 <input type="checkbox" defaultChecked />
-                <span>保持登录状态</span>
+                <span>{t("page.login.form.remember")}</span>
               </label>
               <button type="button" className={styles.textButton}>
-                忘记密码？
+                {t("page.login.form.forgot")}
               </button>
             </div>
 
@@ -278,25 +277,25 @@ export const PageLogin = () => {
               className={styles.loginFormButton}
               ref={buttonRef}
             >
-              进入工作台
+              {t("page.login.form.submit")}
             </button>
           </form>
 
           <div className={styles.loginDivider}>
             <span />
-            <p>或</p>
+            <p>{t("page.login.divider.or")}</p>
             <span />
           </div>
 
           <div className={styles.loginShortcuts}>
-            <button type="button">使用 Apple 登录</button>
-            <button type="button">使用 Google 登录</button>
+            <button type="button">{t("page.login.shortcuts.apple")}</button>
+            <button type="button">{t("page.login.shortcuts.google")}</button>
           </div>
 
           <footer className={styles.loginCardFooter}>
-            <p>首次体验？</p>
+            <p>{t("page.login.footer.question")}</p>
             <button type="button" className={styles.textButton}>
-              申请 Beta 资格
+              {t("page.login.footer.action")}
             </button>
           </footer>
         </section>

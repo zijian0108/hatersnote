@@ -1,3 +1,27 @@
 export default {
-  "page.home.title": "Home"
-}
+  "page.home.title": "Home",
+  "page.login.badge.product": "HatersNote · Nova",
+  "page.login.badge.build": "Alpha build",
+  "page.login.headline.focus": "A more focused",
+  "page.login.headline.space": "writing workspace",
+  "page.login.copy":
+    "We reimagine note-taking to balance privacy, focus, and speed so that inspiration and execution always stay aligned.",
+  "page.login.highlight.ai": "AI summary & idea expansion",
+  "page.login.highlight.security": "Zero-trust encryption · data stays yours",
+  "page.login.highlight.sync": "Cross-device collaboration · millisecond sync",
+  "page.login.cta.primary": "View roadmap",
+  "page.login.cta.secondary": "Switch theme",
+  "page.login.card.title": "Sign in",
+  "page.login.card.subtitle": "Trusted devices can skip extra verification.",
+  "page.login.form.emailLabel": "Email",
+  "page.login.form.emailPlaceholder": "you@hatersnote.app",
+  "page.login.form.passwordLabel": "Password",
+  "page.login.form.remember": "Keep me signed in",
+  "page.login.form.forgot": "Forgot password?",
+  "page.login.form.submit": "Enter workspace",
+  "page.login.divider.or": "or",
+  "page.login.shortcuts.apple": "Continue with Apple",
+  "page.login.shortcuts.google": "Continue with Google",
+  "page.login.footer.question": "New here?",
+  "page.login.footer.action": "Request beta access"
+};

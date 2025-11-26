@@ -1,4 +1,5 @@
 import { useAppSelector } from "@renderer/app/hooks";
+import i18n from "@renderer/app/i18n";
 import { locales, type Locale } from "@renderer/constants";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -25,11 +26,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const deviceInfo = useAppSelector((state) => state.app.deviceInfo);
 
   useEffect(() => {
-    const { sys_locale } = deviceInfo;
-    if (isDefineLocale(sys_locale) && sys_locale !== locale) {
-      setLocale(sys_locale);
+    const { sys_lang } = deviceInfo;
+    if (isDefineLocale(sys_lang) && sys_lang !== locale) {
+      setLocale(sys_lang);
     }
   }, [deviceInfo]);
+
+  useEffect(() => {
+    i18n.changeLanguage(locale);
+  }, [locale]);
 
   return (
     <appContext.Provider

@@ -10,5 +10,5 @@ export type DeviceInfo = {
   cpu_vendor: string
   memory_total: string
   disk_size: string
-  sys_locale: string
+  sys_lang: string
 }
