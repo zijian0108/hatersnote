@@ -1,5 +1,5 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils';
-import { BrowserWindow, app, ipcMain, shell } from 'electron';
+import { BrowserWindow, app, ipcMain, screen, shell } from 'electron';
 import { join } from 'node:path';
 import si from 'systeminformation';
 import icon from '../../resources/icon.png?asset';
@@ -75,6 +75,8 @@ app.whenReady().then(() => {
     const memory = await si.mem();
     const system = await si.system();
     const disks = await si.diskLayout();
+    const primaryDisplay = screen.getPrimaryDisplay()
+    const screenSize = primaryDisplay.workAreaSize
     const deviceInfo = {
       // 主板序列号
       serial_number: system.serial,
@@ -99,7 +101,11 @@ app.whenReady().then(() => {
       // 磁盘大小
       disk_size: formatBytes(disks.reduce((acc, curr) => acc + curr.size, 0)),
       // 系统语言
-      sys_lang: app.getLocale()
+      sys_lang: app.getLocale(),
+      // 屏幕分辨率
+      screen_resolution: `${screenSize.width}x${screenSize.height}`,
+      // 屏幕色彩深度
+      screen_color_depth: primaryDisplay.colorDepth
     };
     return deviceInfo;
   });

@@ -144,10 +144,7 @@ const createRequest = (): KyInstance => {
               }
 
               // 业务层错误（code !== 0 或 success === false）
-              if (
-                !result.success ||
-                (result.code !== undefined && result.code !== 0)
-              ) {
+              if (!result.success || result.code !== 0) {
                 // 创建一个新的响应，包含错误信息
                 const errorResponse = new Response(
                   JSON.stringify({
@@ -173,27 +170,6 @@ const createRequest = (): KyInstance => {
               if (error instanceof HTTPError) {
                 throw error;
               }
-              // JSON 解析失败
-              if (isDev) {
-                console.error("[Response Parse Error]", error);
-              }
-              const errorResponse = new Response(
-                JSON.stringify({
-                  code: -1,
-                  message: "响应数据格式错误",
-                }),
-                {
-                  status: response.status,
-                  statusText: "响应数据格式错误",
-                  headers: response.headers,
-                }
-              );
-              const parseError = new HTTPError(
-                errorResponse,
-                request,
-                _options
-              );
-              throw parseError;
             }
           }
 

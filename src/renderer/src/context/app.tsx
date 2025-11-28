@@ -1,6 +1,7 @@
 import { useAppSelector } from "@renderer/app/hooks";
 import i18n from "@renderer/app/i18n";
-import { locales, type Locale } from "@renderer/constants";
+import { type Locale } from "@renderer/constants";
+import { isDefineLocale } from "@renderer/utils";
 import { createContext, useContext, useEffect, useState } from "react";
 
 type AppContext = {
@@ -14,10 +15,6 @@ const appContext = createContext<AppContext>({
   locale: "en-US",
   isDarkMode: false
 });
-
-const isDefineLocale = (locale: string): locale is Locale => {
-  return locales.includes(locale as Locale);
-};
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);

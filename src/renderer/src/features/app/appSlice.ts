@@ -1,6 +1,7 @@
-import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { DeviceInfo } from "@renderer/types";
+import { createSlice } from "@reduxjs/toolkit";
+
+type DeviceInfo = Awaited<ReturnType<Window['api']['getDeviceInfo']>>
 
 export interface AppState {
   deviceInfo: DeviceInfo
@@ -19,7 +20,9 @@ const initialState: AppState = {
     cpu_vendor: "",
     memory_total: "",
     disk_size: "",
-    sys_locale: ""
+    sys_lang: "",
+    screen_resolution: "",
+    screen_color_depth: 0
   }
 }
 
