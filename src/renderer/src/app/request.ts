@@ -31,7 +31,7 @@ const createRequest = (): KyInstance => {
     retry: {
       limit: 2, // 重试2次
       methods: ["get", "put", "head", "delete", "options", "trace"],
-      statusCodes: [408, 429, 500, 502, 503, 504],
+      statusCodes: [408, 429, 500, 502, 503, 504]
     },
     hooks: {
       beforeRequest: [
@@ -54,7 +54,7 @@ const createRequest = (): KyInstance => {
               request.headers.get("Authorization") ? "🔐" : ""
             );
           }
-        },
+        }
       ],
       beforeError: [
         async (error) => {
@@ -74,7 +74,7 @@ const createRequest = (): KyInstance => {
             // 添加自定义属性
             Object.assign(networkError, {
               apiCode: -1,
-              apiMessage: error.message || "网络请求失败，请检查网络连接",
+              apiMessage: error.message || "网络请求失败，请检查网络连接"
             });
             return networkError;
           }
@@ -82,12 +82,16 @@ const createRequest = (): KyInstance => {
           // HTTP 错误响应
           try {
             const errorData: ApiResponse = await response.json();
-            const httpError = new HTTPError(response, error.request, error.options);
+            const httpError = new HTTPError(
+              response,
+              error.request,
+              error.options
+            );
             // 添加自定义属性
             Object.assign(httpError, {
               apiCode: errorData.code || response.status,
               apiMessage: errorData.message || response.statusText,
-              apiData: errorData.data,
+              apiData: errorData.data
             });
 
             if (isDev) {
@@ -100,10 +104,14 @@ const createRequest = (): KyInstance => {
             return httpError;
           } catch {
             // 响应不是 JSON 格式
-            const httpError = new HTTPError(response, error.request, error.options);
+            const httpError = new HTTPError(
+              response,
+              error.request,
+              error.options
+            );
             Object.assign(httpError, {
               apiCode: response.status,
-              apiMessage: response.statusText || "请求失败",
+              apiMessage: response.statusText || "请求失败"
             });
 
             if (isDev) {
@@ -115,7 +123,7 @@ const createRequest = (): KyInstance => {
 
             return httpError;
           }
-        },
+        }
       ],
       afterResponse: [
         async (request, _options, response) => {
@@ -150,19 +158,15 @@ const createRequest = (): KyInstance => {
                   JSON.stringify({
                     code: result.code || -1,
                     message: result.message || "请求失败",
-                    data: result.data,
+                    data: result.data
                   }),
                   {
                     status: response.status,
                     statusText: result.message || "请求失败",
-                    headers: response.headers,
+                    headers: response.headers
                   }
                 );
-                const error = new HTTPError(
-                  errorResponse,
-                  request,
-                  _options
-                );
+                const error = new HTTPError(errorResponse, request, _options);
                 throw error;
               }
             } catch (error) {
@@ -174,9 +178,9 @@ const createRequest = (): KyInstance => {
           }
 
           return response;
-        },
-      ],
-    },
+        }
+      ]
+    }
   });
 };
 
@@ -303,7 +307,7 @@ export const api = {
         }
         throw error;
       });
-  },
+  }
 };
 
 // 导出原始 request 实例（用于特殊场景）

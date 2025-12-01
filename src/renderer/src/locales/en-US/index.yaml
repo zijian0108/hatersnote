@@ -1,0 +1,28 @@
+page.home:
+  title: Home
+
+page.login:
+  title: Login
+  badgeProduct: "HatersNote · Nova"
+  badgeBuild: "Alpha build"
+  headlineFocus: "A more focused"
+  headlineSpace: "writing workspace"
+  copy: "We reimagine note-taking to balance privacy, focus, and speed so that inspiration and execution always stay aligned."
+  highlightAi: "AI summary & idea expansion"
+  highlightSecurity: "Zero-trust encryption · data stays yours"
+  highlightSync: "Cross-device collaboration · millisecond sync"
+  ctaPrimary: "View roadmap"
+  ctaSecondary: "Switch theme"
+  cardTitle: "Sign in"
+  cardSubtitle: "Trusted devices can skip extra verification."
+  formEmailLabel: "Email"
+  formEmailPlaceholder: "you@hatersnote.app"
+  formPasswordLabel: "Password"
+  formRemember: "Keep me signed in"
+  formForgot: "Forgot password?"
+  formSubmit: "Enter workspace"
+  dividerOr: "or"
+  shortcutsApple: "Continue with Apple"
+  shortcutsGoogle: "Continue with Google"
+  footerQuestion: "New here?"
+  footerAction: "Request beta access"

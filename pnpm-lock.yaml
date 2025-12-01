@@ -75,6 +75,9 @@ importers:
       '@rsbuild/plugin-sass':
         specifier: ^1.4.0
         version: 1.4.0(@rsbuild/core@1.6.6)
+      '@rsbuild/plugin-yaml':
+        specifier: ^1.0.3
+        version: 1.0.3(@rsbuild/core@1.6.6)
       '@types/node':
         specifier: ^20.14.8
         version: 20.19.25
@@ -114,6 +117,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      sass:
+        specifier: ^1.80.3
+        version: 1.93.3
       typescript:
         specifier: ^5.5.2
         version: 5.9.3
@@ -793,6 +799,14 @@ packages:
     resolution: {integrity: sha512-2XcrXUwJftWsWURsvGKKXc7A4yEAUdVkw+K95Qrfmy5E5IfARik0Ko3TFB1828wdvhZ1OFLvDQEzONCIyQV1yg==}
     peerDependencies:
       '@rsbuild/core': 1.x
+
+  '@rsbuild/plugin-yaml@1.0.3':
+    resolution: {integrity: sha512-W+YjfSnqhsFM/5jHnriKv3PM8qRWw+ZjNjTyztgFSMAkOu1Y7Pj5/S8W5RuGeXqGmk/iYXUDH2p0OuNtC58+tw==}
+    peerDependencies:
+      '@rsbuild/core': 1.x
+    peerDependenciesMeta:
+      '@rsbuild/core':
+        optional: true
 
   '@rslib/core@0.0.16':
     resolution: {integrity: sha512-g6IFUZW0K7DDKK/27kF7DOKhP5JIqZoIVAU0c9DZffRE3Pw9sWTyEyVN/kaEnp5k3gaeQTBpcV9nSW+41B2slQ==}
@@ -4161,6 +4175,10 @@ snapshots:
       reduce-configs: 1.1.1
       sass-embedded: 1.93.3
 
+  '@rsbuild/plugin-yaml@1.0.3(@rsbuild/core@1.6.6)':
+    optionalDependencies:
+      '@rsbuild/core': 1.6.6
+
   '@rslib/core@0.0.16(typescript@5.9.3)':
     dependencies:
       '@rsbuild/core': 1.0.19
@@ -4932,7 +4950,6 @@ snapshots:
   chokidar@4.0.3:
     dependencies:
       readdirp: 4.1.2
-    optional: true
 
   chownr@2.0.0: {}
 
@@ -6476,8 +6493,7 @@ snapshots:
     dependencies:
       minimatch: 5.1.6
 
-  readdirp@4.1.2:
-    optional: true
+  readdirp@4.1.2: {}
 
   reduce-configs@1.1.1: {}
 
@@ -6721,7 +6737,6 @@ snapshots:
       source-map-js: 1.2.1
     optionalDependencies:
       '@parcel/watcher': 2.5.1
-    optional: true
 
   sax@1.4.3: {}
 

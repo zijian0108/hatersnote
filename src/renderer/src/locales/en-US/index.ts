@@ -1,27 +1,31 @@
 export default {
-  "page.home.title": "Home",
-  "page.login.badge.product": "HatersNote · Nova",
-  "page.login.badge.build": "Alpha build",
-  "page.login.headline.focus": "A more focused",
-  "page.login.headline.space": "writing workspace",
-  "page.login.copy":
-    "We reimagine note-taking to balance privacy, focus, and speed so that inspiration and execution always stay aligned.",
-  "page.login.highlight.ai": "AI summary & idea expansion",
-  "page.login.highlight.security": "Zero-trust encryption · data stays yours",
-  "page.login.highlight.sync": "Cross-device collaboration · millisecond sync",
-  "page.login.cta.primary": "View roadmap",
-  "page.login.cta.secondary": "Switch theme",
-  "page.login.card.title": "Sign in",
-  "page.login.card.subtitle": "Trusted devices can skip extra verification.",
-  "page.login.form.emailLabel": "Email",
-  "page.login.form.emailPlaceholder": "you@hatersnote.app",
-  "page.login.form.passwordLabel": "Password",
-  "page.login.form.remember": "Keep me signed in",
-  "page.login.form.forgot": "Forgot password?",
-  "page.login.form.submit": "Enter workspace",
-  "page.login.divider.or": "or",
-  "page.login.shortcuts.apple": "Continue with Apple",
-  "page.login.shortcuts.google": "Continue with Google",
-  "page.login.footer.question": "New here?",
-  "page.login.footer.action": "Request beta access"
-};
+  "page.home": {
+    title: "Home"
+  },
+  "page.login": {
+    title: "Login",
+    badgeProduct: "HatersNote · Nova",
+    badgeBuild: "Alpha build",
+    headlineFocus: "A more focused",
+    headlineSpace: "writing workspace",
+    copy: "We reimagine note-taking to balance privacy, focus, and speed so that inspiration and execution always stay aligned.",
+    highlightAi: "AI summary & idea expansion",
+    highlightSecurity: "Zero-trust encryption · data stays yours",
+    highlightSync: "Cross-device collaboration · millisecond sync",
+    ctaPrimary: "View roadmap",
+    ctaSecondary: "Switch theme",
+    cardTitle: "Sign in",
+    cardSubtitle: "Trusted devices can skip extra verification.",
+    formEmailLabel: "Email",
+    formEmailPlaceholder: "you@hatersnote.app",
+    formPasswordLabel: "Password",
+    formRemember: "Keep me signed in",
+    formForgot: "Forgot password?",
+    formSubmit: "Enter workspace",
+    dividerOr: "or",
+    shortcutsApple: "Continue with Apple",
+    shortcutsGoogle: "Continue with Google",
+    footerQuestion: "New here?",
+    footerAction: "Request beta access"
+  }
+} as const;

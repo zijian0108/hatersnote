@@ -1,6 +1,7 @@
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { pluginSass } from "@rsbuild/plugin-sass";
+import { pluginYaml } from "@rsbuild/plugin-yaml";
 import { resolve } from "node:path";
 
 const template = resolve(__dirname, "src", "renderer", "index.html");
@@ -17,12 +18,12 @@ export default defineConfig({
     preload: {},
     // renderer
     renderer: {
-      plugins: [pluginReact(), pluginSass()],
+      plugins: [pluginReact(), pluginSass(), pluginYaml()],
       html: {
         template
       },
       output: {
-        assetPrefix: '/'
+        assetPrefix: "/"
       }
     }
   }

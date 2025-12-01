@@ -1,13 +1,11 @@
-import enUS from '@renderer/locales/en-US';
-import 'react-i18next';
-
-// 从翻译对象中提取所有的 key
-type TranslationKeys = keyof typeof enUS;
+import enUS from "@renderer/locales/en-US/index";
+import "react-i18next";
+import type { ParseKeys } from "i18next";
 
 // 扩展 react-i18next 的类型定义
-declare module 'react-i18next' {
+declare module "react-i18next" {
   interface CustomTypeOptions {
-    defaultNS: 'translation';
+    defaultNS: "translation";
     resources: {
       translation: typeof enUS;
     };
@@ -15,9 +13,9 @@ declare module 'react-i18next' {
 }
 
 // 扩展 i18next 的类型定义（用于 i18n.t 方法）
-declare module 'i18next' {
+declare module "i18next" {
   interface CustomTypeOptions {
-    defaultNS: 'translation';
+    defaultNS: "translation";
     resources: {
       translation: typeof enUS;
     };
@@ -25,4 +23,5 @@ declare module 'i18next' {
 }
 
 // 导出翻译 key 类型，供其他地方使用
-export type I18nKey = TranslationKeys;
+import type { ParseKeys } from "i18next";
+export type I18nKey = ParseKeys<"translation">;

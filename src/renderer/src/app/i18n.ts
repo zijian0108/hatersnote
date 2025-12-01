@@ -12,21 +12,21 @@ const loadLanguageResources = async (lang: string) => {
     let module;
     switch (lang) {
       case "zh-CN":
-        module = await import("@renderer/locales/zh-CN");
+        module = await import("@renderer/locales/zh-CN/index.yaml");
         break;
       case "zh-TW":
-        module = await import("@renderer/locales/zh-TW");
+        module = await import("@renderer/locales/zh-TW/index.yaml");
         break;
       case "en-US":
       default:
-        module = await import("@renderer/locales/en-US");
+        module = await import("@renderer/locales/en-US/index");
         break;
     }
     return module.default;
   } catch (error) {
     console.error(`Failed to load language resources for ${lang}:`, error);
     // 如果加载失败，回退到英文
-    const fallbackModule = await import("@renderer/locales/en-US");
+    const fallbackModule = await import("@renderer/locales/en-US/index");
     return fallbackModule.default;
   }
 };
@@ -39,7 +39,7 @@ export const initI18n = async () => {
     ? deviceInfo.sys_lang
     : "en-US";
   const resources = await loadLanguageResources(systemLang);
-
+  console.log("resources", resources);
   await i18n.use(initReactI18next).init({
     resources: {
       [systemLang]: {
@@ -54,8 +54,8 @@ export const initI18n = async () => {
   });
 };
 
-export const i18nT = (key: I18nKey, options?: Record<string, unknown>) => {
-  return i18n.t(key, options);
+export const i18nT = (key: I18nKey) => {
+  return i18n.t(key);
 };
 
 export default i18n;

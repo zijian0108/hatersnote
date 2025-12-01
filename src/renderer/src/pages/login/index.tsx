@@ -195,14 +195,16 @@ export const PageLogin = () => {
       <div className={styles.loginGrid}>
         <section className={styles.hero}>
           <div className={styles.heroBadge} ref={badgeRef}>
-            <span>{t("page.login.badge.product")}</span>
-            <span>{t("page.login.badge.build")}</span>
+            <span>{t("page.login.badgeProduct")}</span>
+            <span>{t("page.login.badgeBuild")}</span>
           </div>
 
           <h1 className={styles.heroHeadline}>
-            {[t("page.login.headline.focus"), t("page.login.headline.space")].map((line) => (
-              <span key={line}>{line}</span>
-            ))}
+            {[t("page.login.headlineFocus"), t("page.login.headlineSpace")].map(
+              (line) => (
+                <span key={line}>{line}</span>
+              )
+            )}
           </h1>
 
           <p className={styles.heroCopy} ref={copyRef}>
@@ -211,9 +213,9 @@ export const PageLogin = () => {
 
           <ul className={styles.heroHighlights}>
             {[
-              t("page.login.highlight.ai"),
-              t("page.login.highlight.security"),
-              t("page.login.highlight.sync")
+              t("page.login.highlightAi"),
+              t("page.login.highlightSecurity"),
+              t("page.login.highlightSync")
             ].map((item, index) => (
               <li
                 key={item}
@@ -227,33 +229,37 @@ export const PageLogin = () => {
 
           <div className={styles.heroActions}>
             <button type="button" className={styles.primaryCta}>
-              {t("page.login.cta.primary")}
+              {t("page.login.ctaPrimary")}
             </button>
-            <button type="button" className={styles.secondaryCta} onClick={handleThemeToggle}>
-              {t("page.login.cta.secondary")}
+            <button
+              type="button"
+              className={styles.secondaryCta}
+              onClick={handleThemeToggle}
+            >
+              {t("page.login.ctaSecondary")}
             </button>
           </div>
         </section>
 
         <section className={styles.loginCard} ref={cardRef}>
           <div className={styles.loginCardHeader}>
-            <h2>{t("page.login.card.title")}</h2>
-            <p>{t("page.login.card.subtitle")}</p>
+            <h2>{t("page.login.cardTitle")}</h2>
+            <p>{t("page.login.cardSubtitle")}</p>
           </div>
 
           <form className={styles.loginForm} onSubmit={handleSubmit}>
             <label className={styles.loginFormField}>
-              <span>{t("page.login.form.emailLabel")}</span>
+              <span>{t("page.login.formEmailLabel")}</span>
               <input
                 type="email"
-                placeholder={t("page.login.form.emailPlaceholder")}
+                placeholder={t("page.login.formEmailPlaceholder")}
                 ref={(element) => assignInputRef(element, 0)}
                 required
               />
             </label>
 
             <label className={styles.loginFormField}>
-              <span>{t("page.login.form.passwordLabel")}</span>
+              <span>{t("page.login.formPasswordLabel")}</span>
               <input
                 type="password"
                 placeholder="••••••••"
@@ -265,10 +271,10 @@ export const PageLogin = () => {
             <div className={styles.loginFormExtras}>
               <label>
                 <input type="checkbox" defaultChecked />
-                <span>{t("page.login.form.remember")}</span>
+                <span>{t("page.login.formRemember")}</span>
               </label>
               <button type="button" className={styles.textButton}>
-                {t("page.login.form.forgot")}
+                {t("page.login.formForgot")}
               </button>
             </div>
 
@@ -277,25 +283,25 @@ export const PageLogin = () => {
               className={styles.loginFormButton}
               ref={buttonRef}
             >
-              {t("page.login.form.submit")}
+              {t("page.login.formSubmit")}
             </button>
           </form>
 
           <div className={styles.loginDivider}>
             <span />
-            <p>{t("page.login.divider.or")}</p>
+            <p>{t("page.login.dividerOr")}</p>
             <span />
           </div>
 
           <div className={styles.loginShortcuts}>
-            <button type="button">{t("page.login.shortcuts.apple")}</button>
-            <button type="button">{t("page.login.shortcuts.google")}</button>
+            <button type="button">{t("page.login.shortcutsApple")}</button>
+            <button type="button">{t("page.login.shortcutsGoogle")}</button>
           </div>
 
           <footer className={styles.loginCardFooter}>
-            <p>{t("page.login.footer.question")}</p>
+            <p>{t("page.login.footerQuestion")}</p>
             <button type="button" className={styles.textButton}>
-              {t("page.login.footer.action")}
+              {t("page.login.footerAction")}
             </button>
           </footer>
         </section>

@@ -1,0 +1,28 @@
+page.home:
+  title: 主页
+
+page.login:
+  title: 登录
+  badgeProduct: "HatersNote · Nova"
+  badgeBuild: "Alpha build"
+  headlineFocus: "更专注的"
+  headlineSpace: "笔记与写作空间"
+  copy: "我们重新思考了笔记工具应该如何平衡私密、安全与速度，让灵感与行动始终保持同频。"
+  highlightAi: "AI 摘要与思路延展"
+  highlightSecurity: "端侧加密 · 数据自我掌控"
+  highlightSync: "多端协作 · 毫秒级同步"
+  ctaPrimary: "浏览路线图"
+  ctaSecondary: "切换主题"
+  cardTitle: "登录账户"
+  cardSubtitle: "受信任的设备可免验证登录"
+  formEmailLabel: "邮箱"
+  formEmailPlaceholder: "you@hatersnote.app"
+  formPasswordLabel: "密码"
+  formRemember: "保持登录状态"
+  formForgot: "忘记密码？"
+  formSubmit: "进入工作台"
+  dividerOr: "或"
+  shortcutsApple: "使用 Apple 登录"
+  shortcutsGoogle: "使用 Google 登录"
+  footerQuestion: "首次体验？"
+  footerAction: "申请 Beta 资格"
