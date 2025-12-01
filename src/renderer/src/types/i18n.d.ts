@@ -1,6 +1,6 @@
 import enUS from "@renderer/locales/en-US/index";
-import "react-i18next";
 import type { ParseKeys } from "i18next";
+import "react-i18next";
 
 // 扩展 react-i18next 的类型定义
 declare module "react-i18next" {
@@ -23,5 +23,4 @@ declare module "i18next" {
 }
 
 // 导出翻译 key 类型，供其他地方使用
-import type { ParseKeys } from "i18next";
 export type I18nKey = ParseKeys<"translation">;
