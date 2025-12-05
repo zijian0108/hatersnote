@@ -20,7 +20,8 @@ function createMainWindow(): void {
     id: "main",
     useConfig: "main",
     show: true,
-    center: true
+    center: true,
+    titleBarOverlay: true
   });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
