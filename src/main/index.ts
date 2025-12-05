@@ -49,8 +49,8 @@ function createLoginWindow(): void {
     titleBarOverlay: true
   });
 
-  // 监听登录窗口加载完成，检查登录状态
-  loginWindow.webContents.once("did-finish-load", () => {
+  // 等待窗口完全准备好后再显示
+  loginWindow.once("ready-to-show", () => {
     // 通过执行脚本检查是否有登录凭证
     loginWindow.webContents
       .executeJavaScript(
