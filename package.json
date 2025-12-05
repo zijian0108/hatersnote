@@ -36,11 +36,13 @@
     "gsap": "^3.13.0",
     "i18next": "^25.6.3",
     "ky": "^1.14.0",
+    "qrcode.react": "^4.2.0",
     "react-i18next": "^16.3.5",
     "react-redux": "^9.2.0",
     "react-router": "^7.9.6",
     "redux-persist": "^6.0.0",
-    "systeminformation": "^5.27.11"
+    "systeminformation": "^5.27.11",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@electron-rsbuild/core": "^0.0.12",

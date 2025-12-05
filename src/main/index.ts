@@ -1,52 +1,100 @@
-import { electronApp, is, optimizer } from '@electron-toolkit/utils';
-import { BrowserWindow, app, ipcMain, screen, shell } from 'electron';
-import { join } from 'node:path';
-import si from 'systeminformation';
-import icon from '../../resources/icon.png?asset';
+import { electronApp, optimizer } from "@electron-toolkit/utils";
+import {
+  BrowserWindow,
+  app,
+  ipcMain,
+  nativeTheme,
+  screen,
+  shell
+} from "electron";
+import si from "systeminformation";
+import { WindowManager } from "./windows/manager";
 
-function createWindow(): void {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 850,
-    minWidth: 1150,
-    minHeight: 760,
-    show: false,
-    autoHideMenuBar: true,
-    titleBarStyle: 'hidden',
-    ...(process.platform === 'linux' ? { icon } : {}),
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
-    },
-  });
+const windowManager = WindowManager.getInstance();
 
-  // mainWindow.title = 'Electron-Rsbuild app'
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show();
+/**
+ * 创建主窗口
+ */
+function createMainWindow(): void {
+  const mainWindow = windowManager.createWindow({
+    id: "main",
+    useConfig: "main",
+    show: true,
+    center: true
   });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url);
-    return { action: 'deny' };
+    return { action: "deny" };
+  });
+}
+
+/**
+ * 创建登录窗口
+ */
+function createLoginWindow(): void {
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+  const x = width - 390 - 200;
+  const y = Math.floor((height - 744) / 2);
+  const loginWindow = windowManager.createWindow({
+    id: "login",
+    useConfig: "login",
+    loadPath: "login",
+    show: false, // 先不显示，等检查完登录状态后再决定
+    center: false,
+    x,
+    y,
+    titleBarOverlay: true
   });
 
-  // HMR for renderer base on electron-rsbuild cli.
-  // Load the remote URL for development or the local html file for production.
-  if (is.dev && process.env.ELECTRON_RENDERER_URL) {
-    mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
-  } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
-  }
+  // 监听登录窗口加载完成，检查登录状态
+  loginWindow.webContents.once("did-finish-load", () => {
+    // 通过执行脚本检查是否有登录凭证
+    loginWindow.webContents
+      .executeJavaScript(
+        `
+      (() => {
+        const hasAuth = !!localStorage.getItem('authorization');
+        return hasAuth;
+      })()
+    `
+      )
+      .then((hasAuth: boolean) => {
+        if (hasAuth) {
+          // 有登录凭证，关闭登录窗口，打开主窗口
+          windowManager.closeWindow("login");
+          createMainWindow();
+        } else {
+          // 没有登录凭证，显示登录窗口
+          loginWindow.show();
+        }
+      })
+      .catch((error) => {
+        console.error("检查登录状态失败:", error);
+        // 出错时默认显示登录窗口
+        loginWindow.show();
+      });
+  });
+}
+
+/**
+ * 处理登录成功
+ */
+function handleLoginSuccess(): void {
+  // 关闭登录窗口
+  windowManager.closeWindow("login");
+  // 打开主窗口
+  createMainWindow();
 }
 
 function formatBytes(bytes: number, decimals = 2) {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
 
 // This method will be called when Electron has finished
@@ -54,29 +102,29 @@ function formatBytes(bytes: number, decimals = 2) {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron');
+  electronApp.setAppUserModelId("com.electron");
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
-  app.on('browser-window-created', (_, window) => {
+  app.on("browser-window-created", (_, window) => {
     optimizer.watchWindowShortcuts(window);
   });
 
   // IPC test
-  ipcMain.on('ping', (event) => {
-    event.reply('pong', { message: 'copy that.', time: new Date().getTime() });
-    console.log('pong');
+  ipcMain.on("ping", (event) => {
+    event.reply("pong", { message: "copy that.", time: new Date().getTime() });
+    console.log("pong");
   });
 
-  ipcMain.handle('get-device-info', async () => {
+  ipcMain.handleOnce("get-device-info", async () => {
     const cpu = await si.cpu();
     const os = await si.osInfo();
     const memory = await si.mem();
     const system = await si.system();
     const disks = await si.diskLayout();
-    const primaryDisplay = screen.getPrimaryDisplay()
-    const screenSize = primaryDisplay.workAreaSize
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const screenSize = primaryDisplay.workAreaSize;
     const deviceInfo = {
       // 主板序列号
       serial_number: system.serial,
@@ -105,25 +153,50 @@ app.whenReady().then(() => {
       // 屏幕分辨率
       screen_resolution: `${screenSize.width}x${screenSize.height}`,
       // 屏幕色彩深度
-      screen_color_depth: primaryDisplay.colorDepth
+      screen_color_depth: primaryDisplay.colorDepth,
+      // 系统主题
+      system_theme: nativeTheme.shouldUseDarkColors ? "dark" : "light"
     };
     return deviceInfo;
   });
 
-  createWindow();
+  // 监听登录成功事件
+  ipcMain.on("login-success", () => {
+    handleLoginSuccess();
+  });
 
-  app.on('activate', () => {
+  // 监听系统主题变化
+  nativeTheme.on("updated", () => {
+    // 告知渲染进程主题发生了变化
+    windowManager.sendToAllWindows(
+      "theme-updated",
+      nativeTheme.shouldUseDarkColors ? "dark" : "light"
+    );
+  });
+
+  // 启动时先创建登录窗口
+  createLoginWindow();
+
+  app.on("activate", () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) {
+      // 检查是否有主窗口，如果没有则创建登录窗口
+      if (
+        !windowManager.hasWindow("main") &&
+        !windowManager.hasWindow("login")
+      ) {
+        createLoginWindow();
+      }
+    }
   });
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });

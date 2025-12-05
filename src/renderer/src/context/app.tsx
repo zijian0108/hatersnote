@@ -1,42 +1,40 @@
-import { useAppSelector } from "@renderer/app/hooks";
-import i18n from "@renderer/app/i18n";
-import { type Locale } from "@renderer/constants";
-import { isDefineLocale } from "@renderer/utils";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@renderer/app/hooks";
+import { updateSystemTheme, type Theme } from "@renderer/features/app/appSlice";
+import { createContext, useContext, useEffect } from "react";
 
 type AppContext = {
-  locale?: Locale;
-  isDarkMode?: boolean;
-  setLocale?: (locale: Locale) => void;
-  setIsDarkMode?: (isDarkMode: boolean) => void;
+  theme?: Theme;
+  setTheme?: (theme: Theme) => void;
 };
 
 const appContext = createContext<AppContext>({
-  locale: "en-US",
-  isDarkMode: false
+  theme: "light"
 });
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [locale, setLocale] = useState<Locale>("en-US");
-
-  const deviceInfo = useAppSelector((state) => state.app.deviceInfo);
+  const theme = useAppSelector((state) => state.app.system_theme);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const { sys_lang } = deviceInfo;
-    if (isDefineLocale(sys_lang) && sys_lang !== locale) {
-      setLocale(sys_lang);
-    }
-  }, [deviceInfo]);
+    const unsubscribe = window.api.onThemeUpdated((theme) => {
+      setTheme(theme);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
-    i18n.changeLanguage(locale);
-  }, [locale]);
+    document.body.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  const setTheme = (theme: Theme) => {
+    dispatch(updateSystemTheme(theme));
+  };
 
   return (
-    <appContext.Provider
-      value={{ locale, isDarkMode, setLocale, setIsDarkMode }}
-    >
+    <appContext.Provider value={{ theme, setTheme }}>
+      <div className="window-drag-region" />
       {children}
     </appContext.Provider>
   );

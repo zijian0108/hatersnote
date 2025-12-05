@@ -1,310 +1,336 @@
-import { useApp } from "@renderer/context/app";
-import { gsap } from "gsap";
-import type { MouseEvent as ReactMouseEvent } from "react";
-import { FormEvent, useLayoutEffect, useRef } from "react";
+import { api } from "@renderer/app/request";
+import { QRCodeSVG } from "qrcode.react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./index.module.scss";
-const FLUID_BLOBS = [
-  { variant: "fluidBlobPrimary", label: "primary" },
-  { variant: "fluidBlobSecondary", label: "secondary" },
-  { variant: "fluidBlobTertiary", label: "tertiary" },
-  { variant: "fluidBlobQuaternary", label: "quaternary" }
-];
+
+type LoginTab = "password" | "qrcode";
+
+interface QrCodeStatus {
+  qrToken: string;
+  status: "waiting" | "scanned" | "confirmed" | "expired";
+}
 
 export const PageLogin = () => {
-  const { isDarkMode, setIsDarkMode } = useApp();
   const { t } = useTranslation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const badgeRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const inputRefs = useRef<HTMLInputElement[]>([]);
-  const highlightRefs = useRef<HTMLLIElement[]>([]);
-  const copyRef = useRef<HTMLParagraphElement>(null);
-  const fluidRefs = useRef<HTMLDivElement[]>([]);
+  const [activeTab, setActiveTab] = useState<LoginTab>("password");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const assignInputRef = (element: HTMLInputElement | null, index: number) => {
-    if (element) {
-      inputRefs.current[index] = element;
-    }
-  };
+  // 扫码登录相关状态
+  const [qrCodeStatus, setQrCodeStatus] = useState<QrCodeStatus | null>(null);
+  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const assignHighlightRef = (element: HTMLLIElement | null, index: number) => {
-    if (element) {
-      highlightRefs.current[index] = element;
-    }
-  };
-
-  const assignFluidRef = (element: HTMLDivElement | null, index: number) => {
-    if (element) {
-      fluidRefs.current[index] = element;
-    }
-  };
-
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      const headlineSelector = `.${styles.heroHeadline} span`;
-
-      const tl = gsap.timeline({
-        defaults: { ease: "power3.out", duration: 0.8 }
-      });
-
-      tl.from(badgeRef.current, { y: 16, opacity: 0 })
-        .from(
-          headlineSelector,
-          { yPercent: 120, opacity: 0, stagger: 0.08, duration: 0.9 },
-          "-=0.5"
-        )
-        .from(copyRef.current, { y: 14, opacity: 0 }, "-=0.5")
-        .from(
-          highlightRefs.current,
-          { y: 18, opacity: 0, stagger: 0.1 },
-          "-=0.4"
-        )
-        .from(cardRef.current, { y: 40, opacity: 0 }, "-=0.6")
-        .from(inputRefs.current, { y: 20, opacity: 0, stagger: 0.12 }, "-=0.5")
-        .from(buttonRef.current, { y: 20, opacity: 0 }, "-=0.4");
-      gsap.fromTo(
-        fluidRefs.current,
-        { opacity: 0, scale: 0.9, yPercent: 10 },
-        {
-          opacity: 0.85,
-          scale: 1,
-          yPercent: 0,
-          duration: 1.2,
-          ease: "power2.out",
-          stagger: 0.2
-        }
+  // 生成二维码
+  const generateQrCode = async () => {
+    try {
+      // 调用 API 获取二维码 token
+      const response = await api.post<{ qrToken: string; qrCode: string }>(
+        "/auth/qrcode/generate"
       );
-
-      gsap.to(fluidRefs.current, {
-        xPercent: (index) => (index % 2 === 0 ? 8 : -6),
-        yPercent: (index) => (index % 2 === 0 ? -6 : 10),
-        rotate: (index) => (index % 2 === 0 ? 8 : -12),
-        duration: 14,
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-        stagger: { each: 0.4, from: "center" }
+      setQrCodeStatus({
+        qrToken: response.data.qrToken,
+        status: "waiting"
       });
-    }, containerRef);
 
-    return () => ctx.revert();
+      // 开始轮询检查扫码状态
+      startPolling(response.data.qrToken);
+    } catch (err: unknown) {
+      console.error("生成二维码失败:", err);
+      // 如果 API 调用失败，使用模拟数据（仅开发环境）
+      const isDev =
+        import.meta.env.DEV || process.env.NODE_ENV === "development";
+      if (isDev) {
+        const mockToken = `mock-token-${Date.now()}`;
+        setQrCodeStatus({
+          qrToken: mockToken,
+          status: "waiting"
+        });
+        startPolling(mockToken);
+      }
+    }
+  };
+
+  // 轮询检查扫码状态
+  const startPolling = (token: string) => {
+    // 清除之前的轮询
+    if (pollTimerRef.current) {
+      clearInterval(pollTimerRef.current);
+    }
+
+    let pollCount = 0;
+    const maxPolls = 120; // 最多轮询 2 分钟（每 1 秒一次）
+
+    pollTimerRef.current = setInterval(async () => {
+      pollCount++;
+
+      if (pollCount > maxPolls) {
+        // 超时，二维码过期
+        setQrCodeStatus((prev) =>
+          prev ? { ...prev, status: "expired" } : null
+        );
+        if (pollTimerRef.current) {
+          clearInterval(pollTimerRef.current);
+          pollTimerRef.current = null;
+        }
+        return;
+      }
+
+      try {
+        // 调用 API 检查扫码状态
+        const response = await api.get<{ status: string; token?: string }>(
+          `/auth/qrcode/check?token=${token}`
+        );
+
+        if (response.data.status === "scanned") {
+          setQrCodeStatus((prev) =>
+            prev ? { ...prev, status: "scanned" } : null
+          );
+        } else if (
+          response.data.status === "confirmed" &&
+          response.data.token
+        ) {
+          // 扫码成功，保存 token 并登录
+          localStorage.setItem("authorization", response.data.token);
+          handleLoginSuccess();
+          if (pollTimerRef.current) {
+            clearInterval(pollTimerRef.current);
+            pollTimerRef.current = null;
+          }
+        }
+      } catch {
+        // API 调用失败时的处理
+        // 在开发环境模拟扫码流程（用于测试）
+        const isDev =
+          import.meta.env.DEV || process.env.NODE_ENV === "development";
+        if (isDev) {
+          if (pollCount === 5) {
+            // 模拟 5 秒后扫码
+            setQrCodeStatus((prev) =>
+              prev ? { ...prev, status: "scanned" } : null
+            );
+          } else if (pollCount === 8) {
+            // 模拟 8 秒后确认
+            const mockToken = `mock-auth-token-${Date.now()}`;
+            localStorage.setItem("authorization", mockToken);
+            handleLoginSuccess();
+            if (pollTimerRef.current) {
+              clearInterval(pollTimerRef.current);
+              pollTimerRef.current = null;
+            }
+          }
+        }
+        // 生产环境：API 调用失败时不处理，继续轮询
+      }
+    }, 1000);
+  };
+
+  // 账号密码登录
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // 调用登录 API
+      const response = await api.post<{ token: string }>("/auth/login", {
+        json: {
+          email,
+          password
+        }
+      });
+
+      // 保存登录凭证
+      localStorage.setItem("authorization", response.data.token);
+
+      // 如果选择了记住我，可以保存其他信息（可选）
+      if (remember) {
+        localStorage.setItem("rememberMe", "true");
+      }
+
+      // 登录成功
+      handleLoginSuccess();
+    } catch (err: unknown) {
+      console.error("登录失败:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 登录成功处理
+  const handleLoginSuccess = () => {
+    // 通知主进程登录成功
+    if (window.api?.onLoginSuccess) {
+      window.api.onLoginSuccess();
+    }
+  };
+
+  // 切换标签页时重新生成二维码
+  useEffect(() => {
+    if (activeTab === "qrcode" && !qrCodeStatus) {
+      generateQrCode();
+    }
+  }, [activeTab]);
+
+  // 组件卸载时清除轮询
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current);
+      }
+    };
   }, []);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    gsap.fromTo(
-      cardRef.current,
-      { scale: 1 },
-      {
-        scale: 1.015,
-        duration: 0.35,
-        ease: "power1.out",
-        yoyo: true,
-        repeat: 1
-      }
-    );
-  };
-
-  const supportsViewTransition =
-    typeof document !== "undefined" && "startViewTransition" in document;
-
-  const handleThemeToggle = (event: ReactMouseEvent<HTMLButtonElement>) => {
-    const toggleTheme = () => setIsDarkMode?.(!isDarkMode);
-
-    if (!supportsViewTransition) {
-      toggleTheme();
-      return;
+  // 刷新二维码
+  const handleRefreshQrCode = () => {
+    if (pollTimerRef.current) {
+      clearInterval(pollTimerRef.current);
+      pollTimerRef.current = null;
     }
-
-    const doc = document as Document & {
-      startViewTransition?: (callback: () => void) => ViewTransition;
-    };
-
-    if (!doc.startViewTransition) {
-      toggleTheme();
-      return;
-    }
-
-    const { clientX, clientY } = event.nativeEvent;
-    const clickX = clientX ?? window.innerWidth / 2;
-    const clickY = clientY ?? window.innerHeight / 2;
-
-    const maxRadius = Math.max(
-      Math.hypot(clickX, clickY),
-      Math.hypot(window.innerWidth - clickX, clickY),
-      Math.hypot(clickX, window.innerHeight - clickY),
-      Math.hypot(window.innerWidth - clickX, window.innerHeight - clickY)
-    );
-
-    const transition = doc.startViewTransition(() => {
-      toggleTheme();
-    });
-
-    transition.ready
-      .then(() => {
-        const expand = [
-          `circle(0px at ${clickX}px ${clickY}px)`,
-          `circle(${maxRadius}px at ${clickX}px ${clickY}px)`
-        ];
-        const contract = [...expand].reverse();
-        const animationOptions: KeyframeAnimationOptions = {
-          duration: 700,
-          easing: "ease-out"
-        };
-
-        document.documentElement.animate(
-          { clipPath: expand },
-          {
-            ...animationOptions,
-            pseudoElement: "::view-transition-new(login-theme)"
-          }
-        );
-        document.documentElement.animate(
-          { clipPath: contract },
-          {
-            ...animationOptions,
-            pseudoElement: "::view-transition-old(login-theme)"
-          }
-        );
-      })
-      .catch(() => toggleTheme());
+    setQrCodeStatus(null);
+    generateQrCode();
   };
 
   return (
-    <div
-      className={styles.loginPage}
-      ref={containerRef}
-      data-theme={isDarkMode ? "dark" : "light"}
-    >
-      <div className="windowDragRegion" />
-      <div className={styles.fluidCanvas}>
-        {FLUID_BLOBS.map((blob, index) => (
-          <div
-            key={blob.label}
-            className={`${styles.fluidBlob} ${styles[blob.variant]}`}
-            ref={(element) => assignFluidRef(element, index)}
-          >
-            <span />
+    <div className={styles["page-login"]}>
+      <div className={styles["login-container"]}>
+        <div className={styles["login-header"]}>
+          <div className={styles["badge"]}>
+            <span className={styles["badge-product"]}>
+              {t("page.login.badgeProduct")}
+            </span>
+            <span className={styles["badge-build"]}>
+              {t("page.login.badgeBuild")}
+            </span>
           </div>
-        ))}
-        <div className={styles.noiseLayer} />
-      </div>
+        </div>
 
-      <div className={styles.loginGrid}>
-        <section className={styles.hero}>
-          <div className={styles.heroBadge} ref={badgeRef}>
-            <span>{t("page.login.badgeProduct")}</span>
-            <span>{t("page.login.badgeBuild")}</span>
+        <div className={styles["login-card"]}>
+          <div className={styles["tabs"]}>
+            <button
+              className={`${styles["tab"]} ${activeTab === "password" ? styles["tab-active"] : ""}`}
+              onClick={() => setActiveTab("password")}
+            >
+              {t("page.login.tabPassword")}
+            </button>
+            <button
+              className={`${styles["tab"]} ${activeTab === "qrcode" ? styles["tab-active"] : ""}`}
+              onClick={() => setActiveTab("qrcode")}
+            >
+              {t("page.login.tabQrcode")}
+            </button>
           </div>
 
-          <h1 className={styles.heroHeadline}>
-            {[t("page.login.headlineFocus"), t("page.login.headlineSpace")].map(
-              (line) => (
-                <span key={line}>{line}</span>
-              )
-            )}
-          </h1>
-
-          <p className={styles.heroCopy} ref={copyRef}>
-            {t("page.login.copy")}
-          </p>
-
-          <ul className={styles.heroHighlights}>
-            {[
-              t("page.login.highlightAi"),
-              t("page.login.highlightSecurity"),
-              t("page.login.highlightSync")
-            ].map((item, index) => (
-              <li
-                key={item}
-                className={styles.heroHighlightItem}
-                ref={(element) => assignHighlightRef(element, index)}
+          <div className={styles["tab-content"]}>
+            {activeTab === "password" ? (
+              <form
+                className={styles["login-form"]}
+                onSubmit={handlePasswordLogin}
               >
-                {item}
-              </li>
-            ))}
-          </ul>
+                <div className={styles["form-group"]}>
+                  <label htmlFor="email">
+                    {t("page.login.formEmailLabel")}
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t("page.login.formEmailPlaceholder")}
+                    required
+                    disabled={loading}
+                  />
+                </div>
 
-          <div className={styles.heroActions}>
-            <button type="button" className={styles.primaryCta}>
-              {t("page.login.ctaPrimary")}
-            </button>
-            <button
-              type="button"
-              className={styles.secondaryCta}
-              onClick={handleThemeToggle}
-            >
-              {t("page.login.ctaSecondary")}
-            </button>
+                <div className={styles["form-group"]}>
+                  <label htmlFor="password">
+                    {t("page.login.formPasswordLabel")}
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={t("page.login.formPasswordPlaceholder")}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className={styles["form-options"]}>
+                  <label className={styles["checkbox"]}>
+                    <input
+                      type="checkbox"
+                      checked={remember}
+                      onChange={(e) => setRemember(e.target.checked)}
+                      disabled={loading}
+                    />
+                    <span>{t("page.login.formRemember")}</span>
+                  </label>
+                  <a href="#" className={styles["forgot-link"]}>
+                    {t("page.login.formForgot")}
+                  </a>
+                </div>
+
+                <button
+                  type="submit"
+                  className={styles["submit-button"]}
+                  disabled={loading || !email || !password}
+                >
+                  {loading
+                    ? t("page.login.formSubmitting")
+                    : t("page.login.formSubmit")}
+                </button>
+              </form>
+            ) : (
+              <div className={styles["qrcode-container"]}>
+                {!qrCodeStatus ? (
+                  // 初次加载或正在重新获取二维码时，先用骨架占位，避免布局抖动
+                  <div className={styles["qrcode-wrapper"]}>
+                    <div className={styles["qrcode"]}>
+                      <div className={styles["qrcode-placeholder"]} />
+                    </div>
+                  </div>
+                ) : qrCodeStatus.status !== "expired" ? (
+                  <div className={styles["qrcode-wrapper"]}>
+                    <div className={styles["qrcode"]}>
+                      <QRCodeSVG
+                        value={qrCodeStatus.qrToken}
+                        size={200}
+                        level="H"
+                        includeMargin={false}
+                      />
+                      {qrCodeStatus.status === "scanned" && (
+                        <div className={styles["qrcode-overlay"]}>
+                          <div className={styles["qrcode-status"]}>
+                            {t("page.login.qrcodeScanned")}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles["qrcode-wrapper"]}>
+                    <div className={styles["qrcode"]}>
+                      <div className={styles["qrcode-overlay"]}>
+                        <div className={styles["qrcode-status"]}>
+                          <p>{t("page.login.qrcodeExpired")}</p>
+                          <button
+                            className={styles["refresh-button"]}
+                            onClick={handleRefreshQrCode}
+                          >
+                            {t("page.login.qrcodeRefresh")}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        </section>
-
-        <section className={styles.loginCard} ref={cardRef}>
-          <div className={styles.loginCardHeader}>
-            <h2>{t("page.login.cardTitle")}</h2>
-            <p>{t("page.login.cardSubtitle")}</p>
-          </div>
-
-          <form className={styles.loginForm} onSubmit={handleSubmit}>
-            <label className={styles.loginFormField}>
-              <span>{t("page.login.formEmailLabel")}</span>
-              <input
-                type="email"
-                placeholder={t("page.login.formEmailPlaceholder")}
-                ref={(element) => assignInputRef(element, 0)}
-                required
-              />
-            </label>
-
-            <label className={styles.loginFormField}>
-              <span>{t("page.login.formPasswordLabel")}</span>
-              <input
-                type="password"
-                placeholder="••••••••"
-                ref={(element) => assignInputRef(element, 1)}
-                required
-              />
-            </label>
-
-            <div className={styles.loginFormExtras}>
-              <label>
-                <input type="checkbox" defaultChecked />
-                <span>{t("page.login.formRemember")}</span>
-              </label>
-              <button type="button" className={styles.textButton}>
-                {t("page.login.formForgot")}
-              </button>
-            </div>
-
-            <button
-              type="submit"
-              className={styles.loginFormButton}
-              ref={buttonRef}
-            >
-              {t("page.login.formSubmit")}
-            </button>
-          </form>
-
-          <div className={styles.loginDivider}>
-            <span />
-            <p>{t("page.login.dividerOr")}</p>
-            <span />
-          </div>
-
-          <div className={styles.loginShortcuts}>
-            <button type="button">{t("page.login.shortcutsApple")}</button>
-            <button type="button">{t("page.login.shortcutsGoogle")}</button>
-          </div>
-
-          <footer className={styles.loginCardFooter}>
-            <p>{t("page.login.footerQuestion")}</p>
-            <button type="button" className={styles.textButton}>
-              {t("page.login.footerAction")}
-            </button>
-          </footer>
-        </section>
+        </div>
       </div>
     </div>
   );

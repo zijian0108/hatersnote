@@ -1,40 +1,26 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 
-type DeviceInfo = Awaited<ReturnType<Window['api']['getDeviceInfo']>>
-
+export type Theme = Awaited<
+  ReturnType<(typeof window)["api"]["getDeviceInfo"]>
+>["system_theme"];
 export interface AppState {
-  deviceInfo: DeviceInfo
+  system_theme: Theme;
 }
 
 const initialState: AppState = {
-  deviceInfo: {
-    serial_number: "",
-    machineId: "",
-    cpu_brand: "",
-    cpu_cores: 0,
-    os_arch: "",
-    os_platform: "",
-    os_name: "",
-    os_version: "",
-    cpu_vendor: "",
-    memory_total: "",
-    disk_size: "",
-    sys_lang: "",
-    screen_resolution: "",
-    screen_color_depth: 0
-  }
-}
+  system_theme: "light"
+};
 
 export const appSlice = createSlice({
-  name: 'app',
+  name: "app",
   initialState,
   reducers: {
-    updateDeviceInfo: (state, action: PayloadAction<DeviceInfo>) => {
-      state.deviceInfo = action.payload
+    updateSystemTheme: (state, action: PayloadAction<Theme>) => {
+      state.system_theme = action.payload;
     }
   }
-})
+});
 
-export const { updateDeviceInfo } = appSlice.actions
-export default appSlice.reducer
+export const { updateSystemTheme } = appSlice.actions;
+export default appSlice.reducer;

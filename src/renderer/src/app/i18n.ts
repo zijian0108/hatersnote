@@ -1,10 +1,11 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 // 导入类型定义，确保类型提示生效
-import { store } from "@renderer/app/store";
-import { updateDeviceInfo } from "@renderer/features/app/appSlice";
+import { DEVICE_INFO } from "@renderer/constants";
+import { DeviceInfoSchema } from "@renderer/schema/app";
 import type { I18nKey } from "@renderer/types/i18n";
 import { isDefineLocale } from "@renderer/utils";
+import { createStorage } from "./storage";
 
 // 动态加载语言包
 const loadLanguageResources = async (lang: string) => {
@@ -33,13 +34,16 @@ const loadLanguageResources = async (lang: string) => {
 
 // 初始化 i18n
 export const initI18n = async () => {
-  const deviceInfo = await window.api.getDeviceInfo();
-  store.dispatch(updateDeviceInfo(deviceInfo));
+  const storage = createStorage(DEVICE_INFO, DeviceInfoSchema);
+  let deviceInfo = storage.get();
+  if (!deviceInfo) {
+    deviceInfo = await window.api.getDeviceInfo();
+    storage.set(deviceInfo);
+  }
   const systemLang = isDefineLocale(deviceInfo.sys_lang)
     ? deviceInfo.sys_lang
     : "en-US";
   const resources = await loadLanguageResources(systemLang);
-  console.log("resources", resources);
   await i18n.use(initReactI18next).init({
     resources: {
       [systemLang]: {
